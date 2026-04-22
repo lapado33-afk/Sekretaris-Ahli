@@ -8,9 +8,18 @@ interface MeetingFormProps {
   setFormData: React.Dispatch<React.SetStateAction<MeetingData>>;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
+  apiKey: string;
+  setApiKey: (key: string) => void;
 }
 
-const MeetingForm: React.FC<MeetingFormProps> = ({ formData, setFormData, onSubmit, isLoading }) => {
+const MeetingForm: React.FC<MeetingFormProps> = ({ 
+  formData, 
+  setFormData, 
+  onSubmit, 
+  isLoading,
+  apiKey,
+  setApiKey
+}) => {
   const [isSuggesting, setIsSuggesting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -30,7 +39,7 @@ const MeetingForm: React.FC<MeetingFormProps> = ({ formData, setFormData, onSubm
 
     setIsSuggesting(true);
     try {
-      const suggestion = await suggestNextSteps(formData);
+      const suggestion = await suggestNextSteps(formData, apiKey);
       if (suggestion) {
         setFormData(prev => ({ ...prev, nextSteps: suggestion }));
       }
@@ -44,140 +53,13 @@ const MeetingForm: React.FC<MeetingFormProps> = ({ formData, setFormData, onSubm
   // Check if main fields are filled to highlight suggestion button
   const canSuggest = formData.agenda && formData.discussionPoints && formData.decisions;
 
-  const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      header: { ...prev.header, [name]: value }
-    }));
-  };
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'logoKabupaten' | 'logoSekolah') => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 500000) { // 500kb limit for base64 storage
-        alert("Ukuran file terlalu besar. Maksimal 500KB.");
-        return;
-      }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          header: { ...prev.header, [type]: reader.result as string }
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <form onSubmit={onSubmit} className="bg-white rounded-xl shadow-lg border border-slate-200 p-6 space-y-6">
-      {/* Kop Sekolah Section */}
-      <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 space-y-4">
-        <div className="border-b border-slate-200 pb-3">
-          <h3 className="font-bold text-slate-800 flex items-center gap-2">
-            <i className="fas fa-heading text-blue-600"></i> Pengaturan Kop Sekolah
-          </h3>
-          <p className="text-xs text-slate-500 mt-1">Isi identitas sekolah untuk bagian atas dokumen.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-1 col-span-1 md:col-span-2">
-            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Identitas Atas (Baris 1)</label>
-            <input 
-              type="text" 
-              name="government"
-              value={formData.header.government}
-              onChange={handleHeaderChange}
-              placeholder="PEMERINTAH KABUPATEN ..."
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div className="space-y-1 col-span-1 md:col-span-2">
-            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Dinas Terkait (Baris 2)</label>
-            <input 
-              type="text" 
-              name="department"
-              value={formData.header.department}
-              onChange={handleHeaderChange}
-              placeholder="DINAS PENDIDIKAN DAN ..."
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Nama Sekolah</label>
-            <input 
-              type="text" 
-              name="schoolName"
-              value={formData.header.schoolName}
-              onChange={handleHeaderChange}
-              placeholder="NAMA SEKOLAH ANDA"
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Alamat & Kontak</label>
-            <input 
-              type="text" 
-              name="address"
-              value={formData.header.address}
-              onChange={handleHeaderChange}
-              placeholder="Jl. Raya Utama No. 123..."
-              className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none italic"
-            />
-          </div>
-
-          {/* Logo Uploaders */}
-          <div className="grid grid-cols-2 gap-4 col-span-1 md:col-span-2 mt-2">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Logo Kab/Kota</label>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white border border-slate-200 rounded flex items-center justify-center overflow-hidden">
-                  {formData.header.logoKabupaten ? (
-                    <img src={formData.header.logoKabupaten} alt="Logo Kab" className="w-full h-full object-contain" />
-                  ) : (
-                    <i className="fas fa-landmark text-slate-300"></i>
-                  )}
-                </div>
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={(e) => handleLogoUpload(e, 'logoKabupaten')}
-                  className="text-xs w-full file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block">Logo Sekolah</label>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white border border-slate-200 rounded flex items-center justify-center overflow-hidden">
-                  {formData.header.logoSekolah ? (
-                    <img src={formData.header.logoSekolah} alt="Logo Sek" className="w-full h-full object-contain" />
-                  ) : (
-                    <i className="fas fa-school text-slate-300"></i>
-                  )}
-                </div>
-                <input 
-                  type="file" 
-                  accept="image/*"
-                  onChange={(e) => handleLogoUpload(e, 'logoSekolah')}
-                  className="text-xs w-full file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="border-b border-slate-100 pb-4">
         <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <i className="fas fa-edit text-amber-600"></i> Data Pertemuan
+          <i className="fas fa-edit text-amber-600"></i> Isi Data Rapat
         </h2>
-        <p className="text-slate-500 text-sm">Lengkapi detail rapat untuk menyusun notulen yang akurat.</p>
+        <p className="text-slate-500 text-sm">Masukan detail rapat. Gunakan menu <b>Pengaturan</b> di kanan atas untuk menyesuaikan Kop Sekolah & API Key.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

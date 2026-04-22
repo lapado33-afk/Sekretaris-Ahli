@@ -3,6 +3,7 @@ import React, { useState, useCallback } from 'react';
 import Header from './components/Header';
 import MeetingForm from './components/MeetingForm';
 import MinutesPreview from './components/MinutesPreview';
+import SidebarSettings from './components/SidebarSettings';
 import { MeetingData, GeneratedMinutes } from './types';
 import { generateProfessionalMinutes } from './services/geminiService';
 
@@ -26,6 +27,8 @@ const App: React.FC = () => {
     }
   });
 
+  const [userApiKey, setUserApiKey] = useState('');
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedResult, setGeneratedResult] = useState<GeneratedMinutes | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +39,7 @@ const App: React.FC = () => {
     setError(null);
 
     try {
-      const result = await generateProfessionalMinutes(formData);
+      const result = await generateProfessionalMinutes(formData, userApiKey);
       setGeneratedResult(result);
       // Scroll to result on small screens
       if (window.innerWidth < 1024) {
@@ -71,8 +74,17 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen pb-20 bg-[#f1f5f9]">
       <div className="no-print">
-        <Header />
+        <Header onOpenSettings={() => setIsSettingsOpen(true)} />
       </div>
+
+      <SidebarSettings 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        formData={formData}
+        setFormData={setFormData}
+        apiKey={userApiKey}
+        setApiKey={setUserApiKey}
+      />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {error && (
@@ -90,6 +102,8 @@ const App: React.FC = () => {
               setFormData={setFormData} 
               onSubmit={handleSubmit} 
               isLoading={isLoading} 
+              apiKey={userApiKey}
+              setApiKey={setUserApiKey}
             />
           </div>
 
@@ -165,8 +179,15 @@ const App: React.FC = () => {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes fadeInFast {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         .animate-fadeIn {
           animation: fadeIn 0.8s ease-out forwards;
+        }
+        .animate-fadeInFast {
+          animation: fadeInFast 0.3s ease-out forwards;
         }
       `}</style>
     </div>

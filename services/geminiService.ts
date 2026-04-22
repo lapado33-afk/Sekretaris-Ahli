@@ -2,10 +2,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { MeetingData, GeneratedMinutes, GroundingSource } from "../types";
 
-const getAIInstance = () => new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+const getAIInstance = (customKey?: string) => {
+  const key = customKey || process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+  return new GoogleGenAI({ apiKey: key });
+};
 
-export const generateProfessionalMinutes = async (data: MeetingData): Promise<GeneratedMinutes> => {
-  const ai = getAIInstance();
+export const generateProfessionalMinutes = async (data: MeetingData, apiKey?: string): Promise<GeneratedMinutes> => {
+  const ai = getAIInstance(apiKey);
   
   const prompt = `
     Sebagai Sekretaris Ahli Kepala Sekolah, susunlah Notulen Rapat yang sangat formal, berwibawa, dan kaya informasi berdasarkan data di bawah ini.
@@ -77,8 +80,8 @@ export const generateProfessionalMinutes = async (data: MeetingData): Promise<Ge
   }
 };
 
-export const suggestNextSteps = async (data: Partial<MeetingData>): Promise<string> => {
-  const ai = getAIInstance();
+export const suggestNextSteps = async (data: Partial<MeetingData>, apiKey?: string): Promise<string> => {
+  const ai = getAIInstance(apiKey);
   const prompt = `
     Berdasarkan data rapat berikut, berikan saran 3-5 poin rencana tindak lanjut (action plans) yang konkret dan profesional.
     
