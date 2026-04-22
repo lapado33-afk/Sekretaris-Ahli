@@ -1,0 +1,492 @@
+[
+  {
+    "id": 227,
+    "author": "user",
+    "payload": {
+      "type": "text",
+      "text": "NOTULEN RAPAT DI SEKOLAH",
+      "files": [],
+      "fileUploads": [],
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768445207,
+      "nanos": 903000000
+    }
+  },
+  {
+    "id": 228,
+    "author": "model",
+    "payload": {
+      "type": "thinking",
+      "text": "**Designing the Application Concept**\n\nI'm currently fleshing out the core functionality: a React web app with Tailwind CSS. The use case is a \"School Meeting Minutes\" generator. It needs to be functional and user-friendly, catering to the needs of a school secretary and communication expert. I'm focusing on the Indonesian language support as a key requirement.\n\n\n**Refining the AI Persona**\n\nI'm now integrating the desired persona, aiming for \"authoritative,\" \"friendly,\" and \"objective\" AI responses. I'm focusing on framing the AI output as coming from a helpful \"AI Secretary\" to the Principal. The technical aspects are also taking shape with React 18+ and TypeScript (ESM) being implemented, and Tailwind CSS is the styling choice. I'm finalizing the Gemini API integration for generating meeting minutes within a structured XML response.\n\n\n**Developing the App Architecture**\n\nI'm solidifying the app's structure now, focusing on React components and state management. I've defined the key components: Header, Form, ResultView, and Sidebar/Templates. The Gemini API interaction logic is within `services/gemini.ts`. I'm using `gemini-3-flash-preview` and setting up the system prompt for formal Indonesian meeting minutes. I'm aiming for a minimalist, academic design with Tailwind for responsiveness. I've shifted from a simple text area to structured inputs based on typical meeting structures (agenda, discussion, decisions) along with a \"Raw Notes\" area.\n\n\n**Reviewing Core Components**\n\nI'm currently reviewing core components like `MinutesPreview.tsx` and `Header.tsx`. I'm also focusing on the Indonesian prompt for Gemini, striving for robustness. I've re-checked the `@google/genai` syntax and made sure to use `.text` instead of `.text()`. I'm also double-checking React component logic to avoid any common pitfalls.\n\n\n",
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768445207,
+      "nanos": 903000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768445216,
+      "nanos": 971000000
+    }
+  },
+  {
+    "id": 229,
+    "author": "model",
+    "payload": {
+      "type": "generationTable",
+      "entries": [
+        {
+          "path": "metadata.json",
+          "generationType": 0,
+          "isDone": true,
+          "description": "App metadata containing name and description of the School Meeting Minutes Assistant.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\n{\n  \"name\": \"Sekretaris Ahli: Asisten Notulen Sekolah\",\n  \"description\": \"Aplikasi cerdas untuk menyusun notulen rapat sekolah yang profesional, berwibawa, dan tertata rapi menggunakan AI Gemini.\"\n}\n"
+            }
+          ]
+        },
+        {
+          "path": "index.html",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Entry point HTML file with Tailwind CSS and Font Awesome for icons.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\n<!DOCTYPE html>\n<html lang=\"id\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Sekretaris Ahli: Asisten Notulen Sekolah</title>\n    <script src=\"https://cdn.tailwindcss.com\"></script>\n    <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css\">\n    <link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap\" rel=\"stylesheet\">\n    <style>\n        body {\n            font-family: 'Inter', sans-serif;\n            background-color: #f8fafc;\n        }\n        .font-serif {\n            font-family: 'Playfair Display', serif;\n        }\n    </style>\n</head>\n<body>\n    <div id=\"root\"></div>\n</body>\n</html>\n"
+            }
+          ]
+        },
+        {
+          "path": "index.tsx",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Main React entry point utilizing React 18 createRoot.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React from 'react';\nimport ReactDOM from 'react-dom/client';\nimport App from './App';\n\nconst rootElement = document.getElementById('root');\nif (!rootElement) {\n  throw new Error(\"Could not find root element to mount to\");\n}\n\nconst root = ReactDOM.createRoot(rootElement);\nroot.render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n);\n"
+            }
+          ]
+        },
+        {
+          "path": "types.ts",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Global TypeScript types for the application.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nexport interface MeetingData {\n  title: string;\n  date: string;\n  time: string;\n  location: string;\n  leadBy: string;\n  participants: string;\n  agenda: string;\n  discussionPoints: string;\n  decisions: string;\n  nextSteps: string;\n}\n\nexport interface GeneratedMinutes {\n  raw: string;\n  formatted: string;\n}\n\nexport enum MeetingType {\n  GURU = 'Rapat Dewan Guru',\n  KOMITE = 'Rapat Komite Sekolah',\n  KOORDINASI = 'Rapat Koordinasi Pimpinan',\n  PLENO = 'Rapat Pleno Orang Tua',\n  EVALUASI = 'Rapat Evaluasi Bulanan'\n}\n"
+            }
+          ]
+        },
+        {
+          "path": "services/geminiService.ts",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Service logic for interacting with the Gemini API to generate professional minutes.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport { GoogleGenAI } from \"@google/genai\";\nimport { MeetingData } from \"../types\";\n\nexport const generateProfessionalMinutes = async (data: MeetingData): Promise<string> => {\n  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });\n  \n  const prompt = `\n    Sebagai Sekretaris Ahli Kepala Sekolah yang profesional, berwibawa, namun ramah, susunlah Notulen Rapat yang rapi berdasarkan data berikut:\n\n    JUDUL RAPAT: ${data.title}\n    HARI/TANGGAL: ${data.date}\n    WAKTU: ${data.time}\n    TEMPAT: ${data.location}\n    PIMPINAN RAPAT: ${data.leadBy}\n    PESERTA: ${data.participants}\n    AGENDA: ${data.agenda}\n    POIN DISKUSI: ${data.discussionPoints}\n    KEPUTUSAN: ${data.decisions}\n    TINDAK LANJUT: ${data.nextSteps}\n\n    INSTRUKSI FORMAT:\n    1. Gunakan Bahasa Indonesia formal yang baku (PUEBI).\n    2. Struktur dokumen harus mencakup: Kepala Notulen, Agenda, Jalannya Rapat (Narasi singkat), Keputusan Akhir, dan Penutup.\n    3. Gunakan nada bicara yang objektif namun menunjukkan dedikasi sekolah terhadap kualitas pendidikan.\n    4. Pastikan hasil akhirnya siap cetak dengan format Markdown yang elegan.\n    5. Tambahkan bagian tanda tangan untuk Notulis dan Mengetahui Kepala Sekolah di bagian akhir.\n  `;\n\n  try {\n    const response = await ai.models.generateContent({\n      model: 'gemini-3-flash-preview',\n      contents: prompt,\n      config: {\n        temperature: 0.7,\n        topP: 0.95,\n      },\n    });\n\n    return response.text || \"Maaf, terjadi kesalahan saat menyusun notulen.\";\n  } catch (error) {\n    console.error(\"Gemini API Error:\", error);\n    throw new Error(\"Gagal menghubungi layanan AI. Silakan coba lagi.\");\n  }\n};\n"
+            }
+          ]
+        },
+        {
+          "path": "components/Header.tsx",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Application header component.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React from 'react';\n\nconst Header: React.FC = () => {\n  return (\n    <header className=\"bg-slate-900 text-white py-8 px-4 shadow-xl mb-8\">\n      <div className=\"max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4\">\n        <div className=\"flex items-center gap-4\">\n          <div className=\"bg-amber-500 p-3 rounded-lg shadow-inner\">\n            <i className=\"fas fa-file-signature text-2xl text-slate-900\"></i>\n          </div>\n          <div>\n            <h1 className=\"text-3xl font-serif font-bold tracking-tight\">Sekretaris Ahli</h1>\n            <p className=\"text-slate-400 text-sm font-medium tracking-wide uppercase\">Asisten Notulen & Komunikasi Sekolah</p>\n          </div>\n        </div>\n        <div className=\"hidden md:block text-right\">\n          <p className=\"text-xs text-slate-500 italic\">\"Membangun Profesionalisme melalui Komunikasi Presisi\"</p>\n        </div>\n      </div>\n    </header>\n  );\n};\n\nexport default Header;\n"
+            }
+          ]
+        },
+        {
+          "path": "components/MeetingForm.tsx",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Form component for gathering meeting information.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React from 'react';\nimport { MeetingData, MeetingType } from '../types';\n\ninterface MeetingFormProps {\n  formData: MeetingData;\n  setFormData: React.Dispatch<React.SetStateAction<MeetingData>>;\n  onSubmit: (e: React.FormEvent) => void;\n  isLoading: boolean;\n}\n\nconst MeetingForm: React.FC<MeetingFormProps> = ({ formData, setFormData, onSubmit, isLoading }) => {\n  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {\n    const { name, value } = e.target;\n    setFormData(prev => ({ ...prev, [name]: value }));\n  };\n\n  const handleTemplateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {\n    setFormData(prev => ({ ...prev, title: e.target.value }));\n  };\n\n  return (\n    <form onSubmit={onSubmit} className=\"bg-white rounded-xl shadow-lg border border-slate-200 p-6 space-y-6\">\n      <div className=\"border-b border-slate-100 pb-4\">\n        <h2 className=\"text-xl font-bold text-slate-800 flex items-center gap-2\">\n          <i className=\"fas fa-edit text-amber-600\"></i> Data Pertemuan\n        </h2>\n        <p className=\"text-slate-500 text-sm\">Lengkapi detail rapat untuk menyusun notulen yang akurat.</p>\n      </div>\n\n      <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">\n        <div className=\"space-y-1 col-span-1 md:col-span-2\">\n          <label className=\"text-sm font-semibold text-slate-700\">Pilih Template / Jenis Rapat</label>\n          <select \n            onChange={handleTemplateSelect}\n            className=\"w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition\"\n          >\n            <option value=\"\">-- Pilih Jenis Rapat --</option>\n            {Object.values(MeetingType).map(type => (\n              <option key={type} value={type}>{type}</option>\n            ))}\n          </select>\n        </div>\n\n        <div className=\"space-y-1 col-span-1 md:col-span-2\">\n          <label className=\"text-sm font-semibold text-slate-700\">Judul Rapat</label>\n          <input \n            type=\"text\" \n            name=\"title\" \n            value={formData.title} \n            onChange={handleChange}\n            placeholder=\"Contoh: Rapat Koordinasi Persiapan UAS 2024\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Tanggal</label>\n          <input \n            type=\"date\" \n            name=\"date\" \n            value={formData.date} \n            onChange={handleChange}\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Waktu</label>\n          <input \n            type=\"text\" \n            name=\"time\" \n            value={formData.time} \n            onChange={handleChange}\n            placeholder=\"Contoh: 09:00 - 11:30 WIB\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Tempat</label>\n          <input \n            type=\"text\" \n            name=\"location\" \n            value={formData.location} \n            onChange={handleChange}\n            placeholder=\"Contoh: Ruang Rapat Utama\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Pimpinan Rapat</label>\n          <input \n            type=\"text\" \n            name=\"leadBy\" \n            value={formData.leadBy} \n            onChange={handleChange}\n            placeholder=\"Nama Lengkap & Gelar\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n      </div>\n\n      <div className=\"space-y-4\">\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Peserta Rapat</label>\n          <textarea \n            name=\"participants\" \n            value={formData.participants} \n            onChange={handleChange}\n            rows={2}\n            placeholder=\"Daftar peserta atau kelompok (misal: Seluruh Guru Mapel)\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Agenda Utama</label>\n          <textarea \n            name=\"agenda\" \n            value={formData.agenda} \n            onChange={handleChange}\n            rows={2}\n            placeholder=\"Poin-poin agenda rapat\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700 text-amber-800\">Catatan Diskusi (Raw Notes)</label>\n          <textarea \n            name=\"discussionPoints\" \n            value={formData.discussionPoints} \n            onChange={handleChange}\n            rows={4}\n            placeholder=\"Masukkan poin-poin yang dibicarakan secara bebas...\"\n            className=\"w-full px-4 py-2 border border-amber-200 rounded-lg bg-amber-50/30 focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Keputusan & Kesepakatan</label>\n          <textarea \n            name=\"decisions\" \n            value={formData.decisions} \n            onChange={handleChange}\n            rows={3}\n            placeholder=\"Hasil akhir atau kesepakatan yang dicapai\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Tindak Lanjut</label>\n          <textarea \n            name=\"nextSteps\" \n            value={formData.nextSteps} \n            onChange={handleChange}\n            rows={2}\n            placeholder=\"Rencana aksi setelah rapat selesai\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n      </div>\n\n      <button \n        type=\"submit\" \n        disabled={isLoading}\n        className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition flex items-center justify-center gap-3 ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800 active:scale-[0.98]'}`}\n      >\n        {isLoading ? (\n          <>\n            <i className=\"fas fa-circle-notch animate-spin\"></i>\n            Menyusun Notulen...\n          </>\n        ) : (\n          <>\n            <i className=\"fas fa-magic\"></i>\n            Sempurnakan & Susun Notulen\n          </>\n        )}\n      </button>\n    </form>\n  );\n};\n\nexport default MeetingForm;\n"
+            }
+          ]
+        },
+        {
+          "path": "components/MinutesPreview.tsx",
+          "generationType": 0,
+          "isDone": true,
+          "description": "Component for displaying and interacting with the generated minutes.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React from 'react';\n\ninterface MinutesPreviewProps {\n  content: string;\n  onCopy: () => void;\n  onReset: () => void;\n}\n\nconst MinutesPreview: React.FC<MinutesPreviewProps> = ({ content, onCopy, onReset }) => {\n  return (\n    <div className=\"bg-white rounded-xl shadow-2xl border-t-8 border-amber-500 p-8 min-h-[600px] flex flex-col\">\n      <div className=\"flex justify-between items-center mb-6 no-print\">\n        <h2 className=\"text-2xl font-serif font-bold text-slate-800\">Hasil Draf Notulen</h2>\n        <div className=\"flex gap-2\">\n          <button \n            onClick={onCopy}\n            className=\"p-2 px-4 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 text-sm font-semibold flex items-center gap-2 transition\"\n          >\n            <i className=\"fas fa-copy\"></i> Salin\n          </button>\n          <button \n            onClick={() => window.print()}\n            className=\"p-2 px-4 bg-slate-900 hover:bg-slate-800 rounded-lg text-white text-sm font-semibold flex items-center gap-2 transition\"\n          >\n            <i className=\"fas fa-print\"></i> Cetak\n          </button>\n          <button \n            onClick={onReset}\n            className=\"p-2 px-4 bg-red-50 hover:bg-red-100 rounded-lg text-red-600 text-sm font-semibold flex items-center gap-2 transition\"\n          >\n            <i className=\"fas fa-trash-alt\"></i> Hapus\n          </button>\n        </div>\n      </div>\n\n      <div className=\"prose prose-slate max-w-none flex-grow whitespace-pre-wrap font-serif text-slate-700 leading-relaxed border border-slate-100 p-6 rounded-lg bg-slate-50/50\">\n        {content}\n      </div>\n\n      <div className=\"mt-8 pt-6 border-t border-slate-100 text-center text-slate-400 text-xs italic no-print\">\n        Dokumen ini disusun menggunakan sistem kecerdasan buatan Sekretaris Ahli. Harap tinjau kembali sebelum penandatanganan resmi.\n      </div>\n    </div>\n  );\n};\n\nexport default MinutesPreview;\n"
+            }
+          ]
+        },
+        {
+          "path": "App.tsx",
+          "generationType": 0,
+          "isDone": true,
+          "description": "The main application component orchestrating the form and the generated content.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React, { useState, useCallback } from 'react';\nimport Header from './components/Header';\nimport MeetingForm from './components/MeetingForm';\nimport MinutesPreview from './components/MinutesPreview';\nimport { MeetingData } from './types';\nimport { generateProfessionalMinutes } from './services/geminiService';\n\nconst App: React.FC = () => {\n  const [formData, setFormData] = useState<MeetingData>({\n    title: '',\n    date: '',\n    time: '',\n    location: '',\n    leadBy: '',\n    participants: '',\n    agenda: '',\n    discussionPoints: '',\n    decisions: '',\n    nextSteps: ''\n  });\n\n  const [isLoading, setIsLoading] = useState(false);\n  const [generatedContent, setGeneratedContent] = useState<string | null>(null);\n  const [error, setError] = useState<string | null>(null);\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    setIsLoading(true);\n    setError(null);\n\n    try {\n      const result = await generateProfessionalMinutes(formData);\n      setGeneratedContent(result);\n      // Scroll to result on small screens\n      if (window.innerWidth < 768) {\n        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });\n      }\n    } catch (err: any) {\n      setError(err.message || \"Terjadi kesalahan yang tidak terduga.\");\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const handleCopy = useCallback(() => {\n    if (generatedContent) {\n      navigator.clipboard.writeText(generatedContent);\n      alert(\"Notulen berhasil disalin ke clipboard!\");\n    }\n  }, [generatedContent]);\n\n  const handleReset = useCallback(() => {\n    if (confirm(\"Apakah Anda yakin ingin menghapus draf ini?\")) {\n      setGeneratedContent(null);\n    }\n  }, []);\n\n  return (\n    <div className=\"min-h-screen pb-20\">\n      <Header />\n      \n      <main className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n        {error && (\n          <div className=\"mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center gap-3\">\n            <i className=\"fas fa-exclamation-triangle\"></i>\n            {error}\n          </div>\n        )}\n\n        <div className=\"grid grid-cols-1 lg:grid-cols-12 gap-8 items-start\">\n          {/* Left Side: Form */}\n          <div className={`lg:col-span-5 ${generatedContent ? 'hidden lg:block' : 'lg:col-span-12 max-w-3xl mx-auto w-full'}`}>\n            <MeetingForm \n              formData={formData} \n              setFormData={setFormData} \n              onSubmit={handleSubmit} \n              isLoading={isLoading} \n            />\n          </div>\n\n          {/* Right Side: Preview */}\n          <div className={`lg:col-span-7 ${!generatedContent ? 'hidden' : 'block'}`}>\n            <MinutesPreview \n              content={generatedContent || ''} \n              onCopy={handleCopy} \n              onReset={handleReset} \n            />\n          </div>\n        </div>\n\n        {!generatedContent && !isLoading && (\n          <div className=\"mt-12 max-w-4xl mx-auto text-center space-y-8 animate-fadeIn\">\n            <div className=\"grid grid-cols-1 md:grid-cols-3 gap-6\">\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-100\">\n                <div className=\"w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-bolt text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Instan & Cerdas</h3>\n                <p className=\"text-slate-500 text-sm\">Ubah poin kasar menjadi dokumen formal dalam hitungan detik.</p>\n              </div>\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-100\">\n                <div className=\"w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-balance-scale text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Baku & Berwibawa</h3>\n                <p className=\"text-slate-500 text-sm\">Gaya bahasa profesional sesuai standar administrasi sekolah.</p>\n              </div>\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-100\">\n                <div className=\"w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-check-double text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Siap Cetak</h3>\n                <p className=\"text-slate-500 text-sm\">Format rapi yang siap dibagikan kepada guru atau komite.</p>\n              </div>\n            </div>\n            \n            <div className=\"bg-slate-900 text-white p-8 rounded-2xl overflow-hidden relative shadow-2xl\">\n              <div className=\"relative z-10\">\n                <h2 className=\"text-2xl font-serif font-bold mb-4\">Mulai Membangun Administrasi Sekolah yang Modern</h2>\n                <p className=\"text-slate-400 max-w-2xl mx-auto mb-0\">\n                  Isi formulir di atas untuk memulai. Sekretaris Ahli akan membantu Anda mengorganisir informasi agar lebih berwibawa dan mudah dipahami.\n                </p>\n              </div>\n              <i className=\"fas fa-quote-right absolute -bottom-4 -right-4 text-9xl text-white/5 pointer-events-none\"></i>\n            </div>\n          </div>\n        )}\n      </main>\n\n      <footer className=\"mt-12 text-center text-slate-400 text-sm no-print\">\n        <p>&copy; {new Date().getFullYear()} Sekretaris Ahli - Manajemen Sekolah Cerdas</p>\n      </footer>\n\n      <style>{`\n        @media print {\n          .no-print { display: none !important; }\n          body { background-color: white !important; }\n          .shadow-2xl, .shadow-lg, .shadow-xl { box-shadow: none !important; }\n          .rounded-xl { border-radius: 0 !important; }\n          .border-t-8 { border-top: none !important; }\n          main { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: none !important; }\n          .lg\\\\:col-span-7 { width: 100% !important; }\n        }\n        @keyframes fadeIn {\n          from { opacity: 0; transform: translateY(20px); }\n          to { opacity: 1; transform: translateY(0); }\n        }\n        .animate-fadeIn {\n          animation: fadeIn 0.8s ease-out forwards;\n        }\n      `}</style>\n    </div>\n  );\n};\n\nexport default App;\n"
+            }
+          ]
+        }
+      ]
+    },
+    "createdTimestamp": {
+      "seconds": 1768445216,
+      "nanos": 971000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768445216,
+      "nanos": 973000000
+    }
+  },
+  {
+    "id": 230,
+    "author": "user",
+    "payload": {
+      "type": "text",
+      "text": "mohon hasilnya diperbaiki jangan lagi simbol bintang, pastikan hasilnya siap pakai\n",
+      "files": [],
+      "fileUploads": [],
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768452363,
+      "nanos": 196000000
+    }
+  },
+  {
+    "id": 231,
+    "author": "model",
+    "payload": {
+      "type": "thinking",
+      "text": "**Refining the Output**\n\nI'm focused on the \"Sekretaris Ahli\" application and how it presents results. The current task is removing unwanted asterisk symbols from the output. My goal is to streamline the results and make them immediately \"siap pakai\" – readily usable by the end user. I'm aiming for a clean, user-friendly Markdown format.\n\n\n**Adjusting Presentation Style**\n\nI've realized the \"simbol bintang\" issue is about avoiding Markdown's asterisk use in bolding and lists, not just eliminating the symbol entirely. I'm moving toward formatting results as a clean, structured document suitable for school secretaries. This means using numbered lists or indentations instead of bullet points. I'm updating the system instruction in `geminiService.ts` to implement these changes.\n\n\n**Optimizing Visual Display**\n\nI'm now explicitly directing the model to avoid all asterisk usage for formatting, favoring numbered and alphabetic lists, as well as clear headings. I'm also ensuring the output resembles a formal printed document. Furthermore, I'll update `MinutesPreview.tsx` to include a \"Letterhead\" style for a more polished look. The goal is to make the presentation clean, structured, and easy to print.\n\n\n**Implementing the \"Kop Surat\"**\n\nI'm making progress. I've updated the prompt in `services/geminiService.ts`, as a primary task, focusing on the desired formatting. Now, in `components/MinutesPreview.tsx`, I'll integrate the \"Kop Surat\" placeholder. This is key for the \"siap pakai\" final look, transforming the output into a ready-to-print, official document.\n\n\n",
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768452363,
+      "nanos": 196000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768452377,
+      "nanos": 517000000
+    }
+  },
+  {
+    "id": 232,
+    "author": "model",
+    "payload": {
+      "type": "generationTable",
+      "entries": [
+        {
+          "path": "services/geminiService.ts",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Update prompt to explicitly forbid the use of asterisks and ensure formal Indonesian document formatting using numbering instead of bullet points.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport { GoogleGenAI } from \"@google/genai\";\nimport { MeetingData } from \"../types\";\n\nexport const generateProfessionalMinutes = async (data: MeetingData): Promise<string> => {\n  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });\n  \n  const prompt = `\n    Sebagai Sekretaris Ahli Kepala Sekolah, susunlah Notulen Rapat yang sangat formal dan siap cetak berdasarkan data di bawah ini.\n\n    DATA RAPAT:\n    JUDUL: ${data.title}\n    HARI/TANGGAL: ${data.date}\n    WAKTU: ${data.time}\n    TEMPAT: ${data.location}\n    PIMPINAN: ${data.leadBy}\n    PESERTA: ${data.participants}\n    AGENDA: ${data.agenda}\n    DISKUSI: ${data.discussionPoints}\n    KEPUTUSAN: ${data.decisions}\n    TINDAK LANJUT: ${data.nextSteps}\n\n    INSTRUKSI KETAT FORMAT (WAJIB DIPATUHI):\n    1. JANGAN gunakan simbol bintang (*) atau double bintang (**) untuk penebalan atau daftar.\n    2. Gunakan PENULISAN HURUF KAPITAL untuk Judul dan Nama Bagian agar terlihat formal tanpa perlu simbol markdown.\n    3. Untuk daftar/list, gunakan penomoran angka (1, 2, 3...) atau huruf (a, b, c...). JANGAN gunakan bullet points.\n    4. Struktur harus mengikuti standar administrasi sekolah:\n       - JUDUL NOTULEN (KAPITAL)\n       - IDENTITAS RAPAT (Hari, Tanggal, Waktu, Tempat, Pimpinan)\n       - DAFTAR HADIR (Narasi singkat)\n       - AGENDA RAPAT\n       - RISALAH PEMBAHASAN (Gunakan poin 1, 2, 3)\n       - KEPUTUSAN RAPAT\n       - RENCANA TINDAK LANJUT\n       - PENUTUP\n    5. Di bagian akhir, sediakan tempat tanda tangan yang rapi untuk Notulis (kiri) dan Mengetahui: Kepala Sekolah (kanan).\n    6. Gunakan Bahasa Indonesia yang sangat baku, sopan, dan profesional (PUEBI).\n    7. Hasil harus bersih dari karakter teknis markdown sehingga bisa langsung di-copy ke Word atau dicetak.\n  `;\n\n  try {\n    const response = await ai.models.generateContent({\n      model: 'gemini-3-flash-preview',\n      contents: prompt,\n      config: {\n        temperature: 0.4, // Lower temperature for more consistent formal output\n        topP: 0.95,\n      },\n    });\n\n    return response.text || \"Maaf, terjadi kesalahan saat menyusun notulen.\";\n  } catch (error) {\n    console.error(\"Gemini API Error:\", error);\n    throw new Error(\"Gagal menghubungi layanan AI. Silakan coba lagi.\");\n  }\n};\n"
+            }
+          ]
+        },
+        {
+          "path": "components/MinutesPreview.tsx",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Improve the visual layout of the preview to look like a real official school document, including a simulated letterhead area.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React from 'react';\n\ninterface MinutesPreviewProps {\n  content: string;\n  onCopy: () => void;\n  onReset: () => void;\n}\n\nconst MinutesPreview: React.FC<MinutesPreviewProps> = ({ content, onCopy, onReset }) => {\n  return (\n    <div className=\"flex flex-col gap-6\">\n      {/* Action Buttons */}\n      <div className=\"bg-white rounded-xl shadow-md border border-slate-200 p-4 flex justify-between items-center no-print\">\n        <h2 className=\"text-lg font-bold text-slate-800 flex items-center gap-2\">\n          <i className=\"fas fa-file-alt text-amber-500\"></i> Pratinjau Dokumen\n        </h2>\n        <div className=\"flex gap-2\">\n          <button \n            onClick={onCopy}\n            className=\"p-2 px-4 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 text-sm font-semibold flex items-center gap-2 transition\"\n            title=\"Salin Teks\"\n          >\n            <i className=\"fas fa-copy\"></i> Salin\n          </button>\n          <button \n            onClick={() => window.print()}\n            className=\"p-2 px-4 bg-slate-900 hover:bg-slate-800 rounded-lg text-white text-sm font-semibold flex items-center gap-2 transition shadow-md\"\n          >\n            <i className=\"fas fa-print\"></i> Cetak Dokumen\n          </button>\n          <button \n            onClick={onReset}\n            className=\"p-2 px-4 bg-red-50 hover:bg-red-100 rounded-lg text-red-600 text-sm font-semibold flex items-center gap-2 transition\"\n          >\n            <i className=\"fas fa-trash-alt\"></i> Batal\n          </button>\n        </div>\n      </div>\n\n      {/* The \"Paper\" */}\n      <div className=\"bg-white shadow-2xl border border-slate-200 mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] md:p-[30mm] flex flex-col print:shadow-none print:border-none print:m-0 print:p-0\">\n        \n        {/* Simulated School Letterhead (Kop Surat) */}\n        <div className=\"border-b-4 border-double border-slate-900 pb-4 mb-8 flex items-center gap-6\">\n          <div className=\"w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center border-2 border-slate-200 flex-shrink-0\">\n            <i className=\"fas fa-school text-4xl text-slate-400\"></i>\n          </div>\n          <div className=\"text-center flex-grow pr-16\">\n            <h1 className=\"text-xl font-bold uppercase tracking-widest text-slate-900\">Pemerintah Provinsi / Kota / Kabupaten</h1>\n            <h2 className=\"text-2xl font-bold uppercase text-slate-900\">Dinas Pendidikan Dan Kebudayaan</h2>\n            <h3 className=\"text-xl font-bold uppercase text-slate-900\">[NAMA SATUAN PENDIDIKAN ANDA]</h3>\n            <p className=\"text-sm text-slate-600 italic\">Alamat Lengkap Sekolah - Kode Pos - Email - Nomor Telepon</p>\n          </div>\n        </div>\n\n        {/* Content Area */}\n        <div className=\"flex-grow whitespace-pre-wrap font-serif text-[12pt] text-slate-900 leading-[1.6] text-justify\">\n          {content}\n        </div>\n\n        {/* Footer info for preview only */}\n        <div className=\"mt-20 pt-8 border-t border-slate-100 text-center text-slate-400 text-[10pt] italic no-print\">\n          Dokumen ini diproses secara otomatis oleh Sistem Sekretaris Ahli.\n        </div>\n      </div>\n    </div>\n  );\n};\n\nexport default MinutesPreview;\n"
+            }
+          ]
+        },
+        {
+          "path": "App.tsx",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Minor UI adjustment to improve the layout during loading and preview states.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React, { useState, useCallback } from 'react';\nimport Header from './components/Header';\nimport MeetingForm from './components/MeetingForm';\nimport MinutesPreview from './components/MinutesPreview';\nimport { MeetingData } from './types';\nimport { generateProfessionalMinutes } from './services/geminiService';\n\nconst App: React.FC = () => {\n  const [formData, setFormData] = useState<MeetingData>({\n    title: '',\n    date: '',\n    time: '',\n    location: '',\n    leadBy: '',\n    participants: '',\n    agenda: '',\n    discussionPoints: '',\n    decisions: '',\n    nextSteps: ''\n  });\n\n  const [isLoading, setIsLoading] = useState(false);\n  const [generatedContent, setGeneratedContent] = useState<string | null>(null);\n  const [error, setError] = useState<string | null>(null);\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    setIsLoading(true);\n    setError(null);\n\n    try {\n      const result = await generateProfessionalMinutes(formData);\n      setGeneratedContent(result);\n      // Scroll to result on small screens\n      if (window.innerWidth < 1024) {\n        setTimeout(() => {\n          const previewElement = document.getElementById('preview-section');\n          previewElement?.scrollIntoView({ behavior: 'smooth' });\n        }, 100);\n      }\n    } catch (err: any) {\n      setError(err.message || \"Terjadi kesalahan yang tidak terduga.\");\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const handleCopy = useCallback(() => {\n    if (generatedContent) {\n      // Remove any markdown leftovers if any (though prompt forbids it)\n      const cleanText = generatedContent.replace(/[*_#]/g, '');\n      navigator.clipboard.writeText(cleanText);\n      alert(\"Notulen berhasil disalin! Anda bisa langsung menempelkannya (paste) di Microsoft Word atau Google Docs.\");\n    }\n  }, [generatedContent]);\n\n  const handleReset = useCallback(() => {\n    if (confirm(\"Apakah Anda yakin ingin menghapus draf ini dan kembali ke pengisian data?\")) {\n      setGeneratedContent(null);\n      window.scrollTo({ top: 0, behavior: 'smooth' });\n    }\n  }, []);\n\n  return (\n    <div className=\"min-h-screen pb-20 bg-[#f1f5f9]\">\n      <div className=\"no-print\">\n        <Header />\n      </div>\n      \n      <main className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n        {error && (\n          <div className=\"mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center gap-3 no-print\">\n            <i className=\"fas fa-exclamation-triangle\"></i>\n            {error}\n          </div>\n        )}\n\n        <div className=\"grid grid-cols-1 lg:grid-cols-12 gap-10 items-start\">\n          {/* Form Column */}\n          <div className={`lg:col-span-5 transition-all duration-500 no-print ${generatedContent ? 'opacity-50 hover:opacity-100' : 'lg:col-span-12 max-w-3xl mx-auto w-full'}`}>\n            <MeetingForm \n              formData={formData} \n              setFormData={setFormData} \n              onSubmit={handleSubmit} \n              isLoading={isLoading} \n            />\n          </div>\n\n          {/* Result Column */}\n          <div id=\"preview-section\" className={`lg:col-span-7 transition-all duration-500 ${!generatedContent && !isLoading ? 'hidden' : 'block'}`}>\n            {isLoading ? (\n              <div className=\"bg-white rounded-xl shadow-lg p-12 flex flex-col items-center justify-center text-center space-y-6 min-h-[400px]\">\n                <div className=\"relative\">\n                  <div className=\"w-16 h-16 border-4 border-slate-100 border-t-amber-500 rounded-full animate-spin\"></div>\n                  <i className=\"fas fa-pen-fancy absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500\"></i>\n                </div>\n                <div>\n                  <h3 className=\"text-xl font-bold text-slate-800\">Menyusun Notulen Profesional</h3>\n                  <p className=\"text-slate-500\">Mohon tunggu, AI sedang merangkai kata agar sesuai standar administrasi sekolah...</p>\n                </div>\n              </div>\n            ) : (\n              generatedContent && (\n                <MinutesPreview \n                  content={generatedContent} \n                  onCopy={handleCopy} \n                  onReset={handleReset} \n                />\n              )\n            )}\n          </div>\n        </div>\n\n        {!generatedContent && !isLoading && (\n          <div className=\"mt-12 max-w-4xl mx-auto text-center space-y-8 animate-fadeIn no-print\">\n            <div className=\"grid grid-cols-1 md:grid-cols-3 gap-6\">\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-200\">\n                <div className=\"w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-file-word text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Bebas Simbol Bintang</h3>\n                <p className=\"text-slate-500 text-sm\">Hasil bersih dari format markdown, langsung siap pakai di aplikasi pengolah kata.</p>\n              </div>\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-200\">\n                <div className=\"w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-list-ol text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Penomoran Formal</h3>\n                <p className=\"text-slate-500 text-sm\">Menggunakan sistem poin 1, 2, 3 yang baku untuk risalah rapat resmi.</p>\n              </div>\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-200\">\n                <div className=\"w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-stamp text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Sesuai PUEBI</h3>\n                <p className=\"text-slate-500 text-sm\">Bahasa Indonesia yang tertata, berwibawa, dan sangat sopan.</p>\n              </div>\n            </div>\n          </div>\n        )}\n      </main>\n\n      <footer className=\"mt-20 text-center text-slate-400 text-sm no-print\">\n        <p>&copy; {new Date().getFullYear()} Sekretaris Ahli - Pendamping Administrasi Sekolah Modern</p>\n      </footer>\n\n      <style>{`\n        @media print {\n          .no-print { display: none !important; }\n          body { background-color: white !important; margin: 0 !important; padding: 0 !important; }\n          main { margin: 0 !important; padding: 0 !important; max-width: none !important; width: 100% !important; }\n          .lg\\\\:col-span-7 { width: 100% !important; margin: 0 !important; padding: 0 !important; display: block !important; }\n          #preview-section { display: block !important; width: 100% !important; }\n        }\n        @keyframes fadeIn {\n          from { opacity: 0; transform: translateY(20px); }\n          to { opacity: 1; transform: translateY(0); }\n        }\n        .animate-fadeIn {\n          animation: fadeIn 0.8s ease-out forwards;\n        }\n      `}</style>\n    </div>\n  );\n};\n\nexport default App;\n"
+            }
+          ]
+        }
+      ]
+    },
+    "createdTimestamp": {
+      "seconds": 1768452377,
+      "nanos": 517000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768452380,
+      "nanos": 960000000
+    }
+  },
+  {
+    "id": 233,
+    "author": "user",
+    "payload": {
+      "type": "text",
+      "text": "pada menu template tambhkan \" Rapat Kordinasi dengan Pengawas Bina\n",
+      "files": [],
+      "fileUploads": [],
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768452570,
+      "nanos": 679000000
+    }
+  },
+  {
+    "id": 234,
+    "author": "model",
+    "payload": {
+      "type": "thinking",
+      "text": "**Adding New Meeting Type**\n\nI'm currently focused on incorporating \"Rapat Koordinasi dengan Pengawas Bina\" as a new option within the `MeetingType` enum in `types.ts`. This requires updating the `types.ts` file. After that, I will move to the second step of the process.\n\n\n**Validating Automated Updates**\n\nI've confirmed that updating the `MeetingType` enum in `types.ts` automatically updates the dropdown in `MeetingForm.tsx`, which is great! I reviewed `services/geminiService.ts` and confirmed that it uses the meeting type in the prompt using the existing logic so no new update should be needed. With the updated `types.ts`, I believe everything is in place for the new menu entry.\n\n\n**Expanding Meeting Types**\n\nI've just added the remaining meeting types: 'Rapat Dewan Guru', 'Rapat Komite Sekolah', 'Rapat Koordinasi Pimpinan', 'Rapat Pleno Orang Tua', and 'Rapat Evaluasi Bulanan'. I've ensured these are consistent with the existing `MeetingType` enum in `types.ts`, completing the intended additions.\n\n\n",
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768452570,
+      "nanos": 679000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768452582,
+      "nanos": 657000000
+    }
+  },
+  {
+    "id": 235,
+    "author": "model",
+    "payload": {
+      "type": "generationTable",
+      "entries": [
+        {
+          "path": "types.ts",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Menambahkan opsi 'Rapat Koordinasi dengan Pengawas Bina' ke dalam enum MeetingType agar muncul di pilihan template.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nexport interface MeetingData {\n  title: string;\n  date: string;\n  time: string;\n  location: string;\n  leadBy: string;\n  participants: string;\n  agenda: string;\n  discussionPoints: string;\n  decisions: string;\n  nextSteps: string;\n}\n\nexport interface GeneratedMinutes {\n  raw: string;\n  formatted: string;\n}\n\nexport enum MeetingType {\n  GURU = 'Rapat Dewan Guru',\n  KOMITE = 'Rapat Komite Sekolah',\n  KOORDINASI = 'Rapat Koordinasi Pimpinan',\n  PLENO = 'Rapat Pleno Orang Tua',\n  EVALUASI = 'Rapat Evaluasi Bulanan',\n  PENGAWAS = 'Rapat Koordinasi dengan Pengawas Bina'\n}\n"
+            }
+          ]
+        }
+      ]
+    },
+    "createdTimestamp": {
+      "seconds": 1768452582,
+      "nanos": 657000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768452582,
+      "nanos": 680000000
+    }
+  },
+  {
+    "id": 237,
+    "author": "user",
+    "payload": {
+      "type": "text",
+      "text": "mohon diupate pada menu tindak lanjut secara otomatis terisi ketika semua form terisi",
+      "files": [],
+      "fileUploads": [],
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768883062,
+      "nanos": 667000000
+    }
+  },
+  {
+    "id": 238,
+    "author": "model",
+    "payload": {
+      "type": "thinking",
+      "text": "**Refining Auto-Population Logic**\n\nI'm now thinking specifically about how the auto-population will work. Initially, it seemed straightforward, but the nuance is in determining the trigger conditions. The goal is to make the \"Tindak Lanjut\" field update automatically when all relevant fields are completed. I need to define what \"all relevant fields\" means precisely.\n\n\n**Developing Follow-Up Suggestions**\n\nI've been examining the user's intent with \"automatically filled.\" This seems to point toward a real-time suggestion feature within this secretary app. My new idea involves a \"Suggest\" button appearing next to the \"Tindak Lanjut\" field or automatically triggering suggestions based on the contents of the agenda, discussion points, and decisions. This approach aligns with generating helpful output. I'm moving forward with refining this spec.\n\n\n**Reimagining Auto-Completion**\n\nI'm now thinking about the interplay between user input and automated suggestions. I'm leaning toward a \"Generate Recommendation\" button specifically for the \"Tindak Lanjut\" field. This button would trigger a call to Gemini, using a focused prompt for 3-5 action items. To satisfy the requirement of auto-filling, I'm also considering a more nuanced approach where the field auto-populates only when critical sections like agenda, discussion points, and decisions are completed. This will be signaled by an unobtrusive loader, to avoid any disruption to the user experience.\n\n\n**Finalizing the UI/UX**\n\nI'm now focusing on the user interface and experience. My initial plan was a simple button, but the user's direct request made me reconsider automatic population. I've decided on a \"Suggest\" button, specifically \"✨ Berikan Saran Tindak Lanjut\" that appears once the user has entered enough information. I'll implement a state to show \"Suggesting\" (loading). I'll add `suggestNextSteps` in `geminiService.ts` and will then make the updates to `MeetingForm.tsx` as planned. This approach should satisfy their requirements and provide a professional, user-friendly experience.\n\n\n**Optimizing Auto-Suggestion Flow**\n\nI'm now thinking about the \"Tindak Lanjut\" field and focusing on user behavior. I'm leaning toward a prominent \"Tindak Lanjut Otomatis\" button, appearing when \"Decisions\" is filled. I'm refining the Gemini call with `gemini-3-flash-preview` and dropping `maxOutputTokens` as it's not needed for short suggestions. My plan is to update `geminiService.ts` with `suggestNextSteps` and modify `MeetingForm.tsx` to include the new button, for a cleaner user experience.\n\n\n**Constructing Auto-Suggestion**\n\nI'm now fully coding the suggestion feature. I'm focusing on the logic and UI implementation and planning to run tests. I'll be adding the code for a seamless integration. The primary goal is to make the suggestion process quick and unobtrusive, and I want to verify that the overall flow is working as expected.\n\n\n",
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768883062,
+      "nanos": 667000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768883096,
+      "nanos": 38000000
+    }
+  },
+  {
+    "id": 239,
+    "author": "model",
+    "payload": {
+      "type": "generationTable",
+      "entries": [
+        {
+          "path": "services/geminiService.ts",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Menambahkan fungsi suggestNextSteps untuk memberikan saran tindak lanjut secara otomatis berdasarkan konteks rapat.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport { GoogleGenAI } from \"@google/genai\";\nimport { MeetingData } from \"../types\";\n\nconst getAIInstance = () => new GoogleGenAI({ apiKey: process.env.API_KEY || '' });\n\nexport const generateProfessionalMinutes = async (data: MeetingData): Promise<string> => {\n  const ai = getAIInstance();\n  \n  const prompt = `\n    Sebagai Sekretaris Ahli Kepala Sekolah, susunlah Notulen Rapat yang sangat formal dan siap cetak berdasarkan data di bawah ini.\n\n    DATA RAPAT:\n    JUDUL: ${data.title}\n    HARI/TANGGAL: ${data.date}\n    WAKTU: ${data.time}\n    TEMPAT: ${data.location}\n    PIMPINAN: ${data.leadBy}\n    PESERTA: ${data.participants}\n    AGENDA: ${data.agenda}\n    DISKUSI: ${data.discussionPoints}\n    KEPUTUSAN: ${data.decisions}\n    TINDAK LANJUT: ${data.nextSteps}\n\n    INSTRUKSI KETAT FORMAT (WAJIB DIPATUHI):\n    1. JANGAN gunakan simbol bintang (*) atau double bintang (**) untuk penebalan atau daftar.\n    2. Gunakan PENULISAN HURUF KAPITAL untuk Judul dan Nama Bagian agar terlihat formal tanpa perlu simbol markdown.\n    3. Untuk daftar/list, gunakan penomoran angka (1, 2, 3...) atau huruf (a, b, c...). JANGAN gunakan bullet points.\n    4. Struktur harus mengikuti standar administrasi sekolah:\n       - JUDUL NOTULEN (KAPITAL)\n       - IDENTITAS RAPAT (Hari, Tanggal, Waktu, Tempat, Pimpinan)\n       - DAFTAR HADIR (Narasi singkat)\n       - AGENDA RAPAT\n       - RISALAH PEMBAHASAN (Gunakan poin 1, 2, 3)\n       - KEPUTUSAN RAPAT\n       - RENCANA TINDAK LANJUT\n       - PENUTUP\n    5. Di bagian akhir, sediakan tempat tanda tangan yang rapi untuk Notulis (kiri) dan Mengetahui: Kepala Sekolah (kanan).\n    6. Gunakan Bahasa Indonesia yang sangat baku, sopan, dan profesional (PUEBI).\n    7. Hasil harus bersih dari karakter teknis markdown sehingga bisa langsung di-copy ke Word atau dicetak.\n  `;\n\n  try {\n    const response = await ai.models.generateContent({\n      model: 'gemini-3-flash-preview',\n      contents: prompt,\n      config: {\n        temperature: 0.4,\n        topP: 0.95,\n      },\n    });\n\n    return response.text || \"Maaf, terjadi kesalahan saat menyusun notulen.\";\n  } catch (error) {\n    console.error(\"Gemini API Error:\", error);\n    throw new Error(\"Gagal menghubungi layanan AI. Silakan coba lagi.\");\n  }\n};\n\nexport const suggestNextSteps = async (data: Partial<MeetingData>): Promise<string> => {\n  const ai = getAIInstance();\n  const prompt = `\n    Berdasarkan data rapat berikut, berikan saran 3-5 poin rencana tindak lanjut (action plans) yang konkret dan profesional.\n    \n    AGENDA: ${data.agenda}\n    DISKUSI: ${data.discussionPoints}\n    KEPUTUSAN: ${data.decisions}\n    \n    INSTRUKSI:\n    - Gunakan penomoran angka (1, 2, 3...).\n    - JANGAN gunakan simbol bintang (*).\n    - Bahasa formal dan langsung pada inti aksi (Misal: \"Menyusun jadwal...\", \"Mendistribusikan berkas...\").\n    - Berikan hanya poin-poinnya saja.\n  `;\n\n  try {\n    const response = await ai.models.generateContent({\n      model: 'gemini-3-flash-preview',\n      contents: prompt,\n      config: {\n        temperature: 0.7,\n      },\n    });\n    return response.text?.trim() || \"\";\n  } catch (error) {\n    console.error(\"Suggestion Error:\", error);\n    return \"\";\n  }\n};\n"
+            }
+          ]
+        },
+        {
+          "path": "components/MeetingForm.tsx",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Menambahkan fitur 'Saran Otomatis' pada field Tindak Lanjut yang akan aktif ketika field utama telah diisi.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React, { useState } from 'react';\nimport { MeetingData, MeetingType } from '../types';\nimport { suggestNextSteps } from '../services/geminiService';\n\ninterface MeetingFormProps {\n  formData: MeetingData;\n  setFormData: React.Dispatch<React.SetStateAction<MeetingData>>;\n  onSubmit: (e: React.FormEvent) => void;\n  isLoading: boolean;\n}\n\nconst MeetingForm: React.FC<MeetingFormProps> = ({ formData, setFormData, onSubmit, isLoading }) => {\n  const [isSuggesting, setIsSuggesting] = useState(false);\n\n  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {\n    const { name, value } = e.target;\n    setFormData(prev => ({ ...prev, [name]: value }));\n  };\n\n  const handleTemplateSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {\n    setFormData(prev => ({ ...prev, title: e.target.value }));\n  };\n\n  const handleAutoSuggest = async () => {\n    if (!formData.agenda || !formData.discussionPoints || !formData.decisions) {\n      alert(\"Harap isi Agenda, Diskusi, dan Keputusan terlebih dahulu agar AI dapat memberikan saran yang akurat.\");\n      return;\n    }\n\n    setIsSuggesting(true);\n    try {\n      const suggestion = await suggestNextSteps(formData);\n      if (suggestion) {\n        setFormData(prev => ({ ...prev, nextSteps: suggestion }));\n      }\n    } catch (error) {\n      console.error(error);\n    } finally {\n      setIsSuggesting(false);\n    }\n  };\n\n  // Check if main fields are filled to highlight suggestion button\n  const canSuggest = formData.agenda && formData.discussionPoints && formData.decisions;\n\n  return (\n    <form onSubmit={onSubmit} className=\"bg-white rounded-xl shadow-lg border border-slate-200 p-6 space-y-6\">\n      <div className=\"border-b border-slate-100 pb-4\">\n        <h2 className=\"text-xl font-bold text-slate-800 flex items-center gap-2\">\n          <i className=\"fas fa-edit text-amber-600\"></i> Data Pertemuan\n        </h2>\n        <p className=\"text-slate-500 text-sm\">Lengkapi detail rapat untuk menyusun notulen yang akurat.</p>\n      </div>\n\n      <div className=\"grid grid-cols-1 md:grid-cols-2 gap-4\">\n        <div className=\"space-y-1 col-span-1 md:col-span-2\">\n          <label className=\"text-sm font-semibold text-slate-700\">Pilih Template / Jenis Rapat</label>\n          <select \n            onChange={handleTemplateSelect}\n            className=\"w-full px-4 py-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent transition\"\n          >\n            <option value=\"\">-- Pilih Jenis Rapat --</option>\n            {Object.values(MeetingType).map(type => (\n              <option key={type} value={type}>{type}</option>\n            ))}\n          </select>\n        </div>\n\n        <div className=\"space-y-1 col-span-1 md:col-span-2\">\n          <label className=\"text-sm font-semibold text-slate-700\">Judul Rapat</label>\n          <input \n            type=\"text\" \n            name=\"title\" \n            value={formData.title} \n            onChange={handleChange}\n            placeholder=\"Contoh: Rapat Koordinasi Persiapan UAS 2024\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Tanggal</label>\n          <input \n            type=\"date\" \n            name=\"date\" \n            value={formData.date} \n            onChange={handleChange}\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Waktu</label>\n          <input \n            type=\"text\" \n            name=\"time\" \n            value={formData.time} \n            onChange={handleChange}\n            placeholder=\"Contoh: 09:00 - 11:30 WIB\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Tempat</label>\n          <input \n            type=\"text\" \n            name=\"location\" \n            value={formData.location} \n            onChange={handleChange}\n            placeholder=\"Contoh: Ruang Rapat Utama\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Pimpinan Rapat</label>\n          <input \n            type=\"text\" \n            name=\"leadBy\" \n            value={formData.leadBy} \n            onChange={handleChange}\n            placeholder=\"Nama Lengkap & Gelar\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          />\n        </div>\n      </div>\n\n      <div className=\"space-y-4\">\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Peserta Rapat</label>\n          <textarea \n            name=\"participants\" \n            value={formData.participants} \n            onChange={handleChange}\n            rows={2}\n            placeholder=\"Daftar peserta atau kelompok (misal: Seluruh Guru Mapel)\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Agenda Utama</label>\n          <textarea \n            name=\"agenda\" \n            value={formData.agenda} \n            onChange={handleChange}\n            rows={2}\n            placeholder=\"Poin-poin agenda rapat\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n            required\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700 text-amber-800\">Catatan Diskusi (Raw Notes)</label>\n          <textarea \n            name=\"discussionPoints\" \n            value={formData.discussionPoints} \n            onChange={handleChange}\n            rows={4}\n            placeholder=\"Masukkan poin-poin yang dibicarakan secara bebas...\"\n            className=\"w-full px-4 py-2 border border-amber-200 rounded-lg bg-amber-50/30 focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-1\">\n          <label className=\"text-sm font-semibold text-slate-700\">Keputusan & Kesepakatan</label>\n          <textarea \n            name=\"decisions\" \n            value={formData.decisions} \n            onChange={handleChange}\n            rows={3}\n            placeholder=\"Hasil akhir atau kesepakatan yang dicapai\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none\"\n          ></textarea>\n        </div>\n\n        <div className=\"space-y-2\">\n          <div className=\"flex justify-between items-center\">\n            <label className=\"text-sm font-semibold text-slate-700\">Tindak Lanjut</label>\n            <button\n              type=\"button\"\n              onClick={handleAutoSuggest}\n              disabled={isSuggesting}\n              className={`text-xs px-3 py-1 rounded-full border transition flex items-center gap-1 ${isSuggesting ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed' : (canSuggest ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 animate-pulse' : 'bg-slate-50 text-slate-400 border-slate-200 cursor-help')}`}\n              title={canSuggest ? \"Klik untuk mengisi tindak lanjut secara otomatis\" : \"Isi Agenda & Keputusan terlebih dahulu\"}\n            >\n              {isSuggesting ? (\n                <><i className=\"fas fa-spinner animate-spin\"></i> Berpikir...</>\n              ) : (\n                <><i className=\"fas fa-magic\"></i> Isi Otomatis</>\n              )}\n            </button>\n          </div>\n          <textarea \n            name=\"nextSteps\" \n            value={formData.nextSteps} \n            onChange={handleChange}\n            rows={3}\n            placeholder=\"Rencana aksi setelah rapat selesai...\"\n            className=\"w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none transition-all duration-300\"\n          ></textarea>\n        </div>\n      </div>\n\n      <button \n        type=\"submit\" \n        disabled={isLoading}\n        className={`w-full py-4 rounded-xl font-bold text-white shadow-lg transition flex items-center justify-center gap-3 ${isLoading ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800 active:scale-[0.98]'}`}\n      >\n        {isLoading ? (\n          <>\n            <i className=\"fas fa-circle-notch animate-spin\"></i>\n            Menyusun Notulen...\n          </>\n        ) : (\n          <>\n            <i className=\"fas fa-magic\"></i>\n            Sempurnakan & Susun Notulen\n          </>\n        )}\n      </button>\n    </form>\n  );\n};\n\nexport default MeetingForm;\n"
+            }
+          ]
+        }
+      ]
+    },
+    "createdTimestamp": {
+      "seconds": 1768883096,
+      "nanos": 38000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768883100,
+      "nanos": 103000000
+    }
+  },
+  {
+    "id": 241,
+    "author": "user",
+    "payload": {
+      "type": "text",
+      "text": "Integrasikan Google Search Grounding ke dalam layanan Gemini di services/geminiService.ts untuk memberikan informasi terkini atau data referensi yang relevan dengan agenda rapat, sehingga notulen yang dihasilkan lebih kaya informasi.",
+      "files": [],
+      "fileUploads": [],
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768885294,
+      "nanos": 42000000
+    }
+  },
+  {
+    "id": 242,
+    "author": "model",
+    "payload": {
+      "type": "thinking",
+      "text": "**Integrating Search Grounding**\n\nI'm focusing on incorporating Google Search grounding within the Gemini API calls in `services/geminiService.ts`. The aim is to supply real-time context and relevant information for meeting agendas. I'm currently reviewing the file structure and pinpointing the existing Gemini API functions to understand where to integrate the search functionality.\n\n\n**Refining the Return Type**\n\nI'm thinking about how the `generateProfessionalMinutes` function needs to change. Currently, it just returns a string, the minutes themselves. But now I have to incorporate Google Search, I realize I need to return more than just that string. I'll need to send the grounding metadata as well. That means updating the function signature and the data model to include the source URLs. I must remember to update `services/geminiService.ts` to implement this.\n\n\n**Adapting the UI**\n\nI'm now thinking about how the new source data will be displayed. While the core request was for integration within `services/geminiService.ts`, the instructions require showing the sources. I'm focusing on modifying `App.tsx` and `MinutesPreview.tsx` to handle the updated return type from `generateProfessionalMinutes` and display the URLs, although I might only implement this minimum for now.\n\n\n**Integrating GoogleSearch Results**\n\nI'm now going to focus on how to correctly extract the Google Search results within `services/geminiService.ts`. I need to ensure the grounding metadata is accessed properly from the response. I'm focusing on the `groundingChunks` structure to extract the necessary source URLs, ensuring alignment with the Google Search tool limitations. I'm reviewing the response format and considering how to translate the `uri` and `title` into a usable format for display.\n\n\n**Extending Search Functionality**\n\nI've been thinking about the implications of incorporating search beyond just generating meeting minutes. Considering `suggestNextSteps` also relies on Gemini, it seems logical to expand search grounding there as well to enhance the quality of action plan suggestions. However, I am still focused on implementing the initial integration in `generateProfessionalMinutes`. I'm also mindful of the existing system prompt's formatting constraints, ensuring search integration doesn't disrupt the output's structure. I'm updating `types.ts`, the function signature of `generateProfessionalMinutes` and adding tool declarations to `services/geminiService.ts`, as well as updates to `App.tsx`.\n\n\n**Enhancing UI Presentation**\n\nI'm now thinking about how to adapt the UI to display the grounding metadata. I'll add a `sources` prop to `MinutesPreview.tsx` to render the source URLs, noting that `generateProfessionalMinutes` currently returns only a string. I will modify `App.tsx` to handle the updated return values from `generateProfessionalMinutes`. I'm updating `geminiService.ts` to include the `GroundingSource` type, and ensuring that I extract URLs from the response's `groundingChunks` array as required by the instructions. I've also verified the model name, confirming it as `gemini-3-flash-preview`.\n\n\n**Parsing Web Data**\n\nI'm now focusing on parsing the `groundingChunks` array within the `services/geminiService.ts` file. I'm extracting web data by filtering for the `web` property in each chunk and transforming it into a more readable format, specifically extracting the `title` and `uri`. The target is creating an array of objects to be used in the new UI.\n\n\n",
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768885294,
+      "nanos": 42000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768885308,
+      "nanos": 806000000
+    }
+  },
+  {
+    "id": 243,
+    "author": "model",
+    "payload": {
+      "type": "text",
+      "text": "I akan mengintegrasikan Google Search Grounding ke dalam sistem Sekretaris Ahli. Fitur ini memungkinkan AI untuk mencari referensi peraturan pendidikan terkini, standar administrasi terbaru, atau informasi relevan lainnya di internet untuk memperkaya isi notulen Anda.\n\nSesuai dengan pedoman teknis, saya juga akan memperbarui antarmuka untuk menampilkan sumber referensi (sitasi) yang ditemukan oleh Google Search di bagian bawah dokumen.\n\n**Spesifikasi Perubahan:**\n\n1.  **`types.ts`**: Menambahkan interface `GroundingSource` untuk menyimpan data referensi dari web.\n2.  **`services/geminiService.ts`**:\n    *   Menambahkan alat `googleSearch` pada pemanggilan API Gemini.\n    *   Mengubah fungsi agar mengembalikan objek yang berisi teks notulen sekaligus daftar sumber referensi dari internet.\n3.  **`App.tsx`**: Memperbarui logika penanganan state untuk menyimpan teks dan sumber referensi secara terpisah.\n4.  **`components/MinutesPreview.tsx`**: Menambahkan bagian \"REFERENSI DAN SUMBER INFORMASI\" di bawah tanda tangan untuk menampilkan link web yang digunakan sebagai dasar informasi tambahan dalam notulen.\n\nBerikut adalah pembaruan kodenya:\n\n",
+      "cMarkNode": {}
+    },
+    "createdTimestamp": {
+      "seconds": 1768885308,
+      "nanos": 806000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768885308,
+      "nanos": 807000000
+    }
+  },
+  {
+    "id": 244,
+    "author": "model",
+    "payload": {
+      "type": "generationTable",
+      "entries": [
+        {
+          "path": "types.ts",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Menambahkan interface untuk menyimpan sumber grounding dari Google Search.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nexport interface GroundingSource {\n  title: string;\n  uri: string;\n}\n\nexport interface MeetingData {\n  title: string;\n  date: string;\n  time: string;\n  location: string;\n  leadBy: string;\n  participants: string;\n  agenda: string;\n  discussionPoints: string;\n  decisions: string;\n  nextSteps: string;\n}\n\nexport interface GeneratedMinutes {\n  text: string;\n  sources?: GroundingSource[];\n}\n\nexport enum MeetingType {\n  GURU = 'Rapat Dewan Guru',\n  KOMITE = 'Rapat Komite Sekolah',\n  KOORDINASI = 'Rapat Koordinasi Pimpinan',\n  PLENO = 'Rapat Pleno Orang Tua',\n  EVALUASI = 'Rapat Evaluasi Bulanan',\n  PENGAWAS = 'Rapat Koordinasi dengan Pengawas Bina'\n}\n"
+            }
+          ]
+        },
+        {
+          "path": "services/geminiService.ts",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Integrasi Google Search Grounding ke dalam pembuatan notulen dan ekstraksi metadata grounding.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport { GoogleGenAI } from \"@google/genai\";\nimport { MeetingData, GeneratedMinutes, GroundingSource } from \"../types\";\n\nconst getAIInstance = () => new GoogleGenAI({ apiKey: process.env.API_KEY || '' });\n\nexport const generateProfessionalMinutes = async (data: MeetingData): Promise<GeneratedMinutes> => {\n  const ai = getAIInstance();\n  \n  const prompt = `\n    Sebagai Sekretaris Ahli Kepala Sekolah, susunlah Notulen Rapat yang sangat formal, berwibawa, dan kaya informasi berdasarkan data di bawah ini.\n    Gunakan bantuan pencarian Google jika ada agenda yang merujuk pada regulasi pendidikan, kurikulum merdeka, atau standar nasional pendidikan terbaru untuk memberikan konteks yang akurat.\n\n    DATA RAPAT:\n    JUDUL: ${data.title}\n    HARI/TANGGAL: ${data.date}\n    WAKTU: ${data.time}\n    TEMPAT: ${data.location}\n    PIMPINAN: ${data.leadBy}\n    PESERTA: ${data.participants}\n    AGENDA: ${data.agenda}\n    DISKUSI: ${data.discussionPoints}\n    KEPUTUSAN: ${data.decisions}\n    TINDAK LANJUT: ${data.nextSteps}\n\n    INSTRUKSI KETAT FORMAT (WAJIB DIPATUHI):\n    1. JANGAN gunakan simbol bintang (*) atau double bintang (**) untuk penebalan atau daftar.\n    2. Gunakan PENULISAN HURUF KAPITAL untuk Judul dan Nama Bagian agar terlihat formal tanpa perlu simbol markdown.\n    3. Untuk daftar/list, gunakan penomoran angka (1, 2, 3...) atau huruf (a, b, c...). JANGAN gunakan bullet points.\n    4. Struktur harus mengikuti standar administrasi sekolah:\n       - JUDUL NOTULEN (KAPITAL)\n       - IDENTITAS RAPAT (Hari, Tanggal, Waktu, Tempat, Pimpinan)\n       - DAFTAR HADIR (Narasi singkat)\n       - AGENDA RAPAT\n       - RISALAH PEMBAHASAN (Gunakan poin 1, 2, 3)\n       - KEPUTUSAN RAPAT\n       - RENCANA TINDAK LANJUT\n       - PENUTUP\n    5. Di bagian akhir, sediakan tempat tanda tangan yang rapi untuk Notulis (kiri) dan Mengetahui: Kepala Sekolah (kanan).\n    6. Gunakan Bahasa Indonesia yang sangat baku, sopan, dan profesional (PUEBI).\n    7. Hasil harus bersih dari karakter teknis markdown sehingga bisa langsung di-copy ke Word atau dicetak.\n  `;\n\n  try {\n    const response = await ai.models.generateContent({\n      model: 'gemini-3-flash-preview',\n      contents: prompt,\n      config: {\n        temperature: 0.4,\n        topP: 0.95,\n        tools: [{ googleSearch: {} }] as any,\n      },\n    });\n\n    const text = response.text || \"Maaf, terjadi kesalahan saat menyusun notulen.\";\n    \n    // Ekstraksi sumber grounding jika ada\n    const sources: GroundingSource[] = [];\n    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];\n    \n    chunks.forEach((chunk: any) => {\n      if (chunk.web && chunk.web.uri && chunk.web.title) {\n        sources.push({\n          title: chunk.web.title,\n          uri: chunk.web.uri\n        });\n      }\n    });\n\n    return { \n      text, \n      sources: sources.length > 0 ? sources : undefined \n    };\n  } catch (error) {\n    console.error(\"Gemini API Error:\", error);\n    throw new Error(\"Gagal menghubungi layanan AI. Silakan coba lagi.\");\n  }\n};\n\nexport const suggestNextSteps = async (data: Partial<MeetingData>): Promise<string> => {\n  const ai = getAIInstance();\n  const prompt = `\n    Berdasarkan data rapat berikut, berikan saran 3-5 poin rencana tindak lanjut (action plans) yang konkret dan profesional.\n    \n    AGENDA: ${data.agenda}\n    DISKUSI: ${data.discussionPoints}\n    KEPUTUSAN: ${data.decisions}\n    \n    INSTRUKSI:\n    - Gunakan penomoran angka (1, 2, 3...).\n    - JANGAN gunakan simbol bintang (*).\n    - Bahasa formal dan langsung pada inti aksi (Misal: \"Menyusun jadwal...\", \"Mendistribusikan berkas...\").\n    - Berikan hanya poin-poinnya saja.\n  `;\n\n  try {\n    const response = await ai.models.generateContent({\n      model: 'gemini-3-flash-preview',\n      contents: prompt,\n      config: {\n        temperature: 0.7,\n      },\n    });\n    return response.text?.trim() || \"\";\n  } catch (error) {\n    console.error(\"Suggestion Error:\", error);\n    return \"\";\n  }\n};\n"
+            }
+          ]
+        },
+        {
+          "path": "components/MinutesPreview.tsx",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Menambahkan tampilan sumber referensi di bagian bawah dokumen.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React from 'react';\nimport { GroundingSource } from '../types';\n\ninterface MinutesPreviewProps {\n  content: string;\n  sources?: GroundingSource[];\n  onCopy: () => void;\n  onReset: () => void;\n}\n\nconst MinutesPreview: React.FC<MinutesPreviewProps> = ({ content, sources, onCopy, onReset }) => {\n  return (\n    <div className=\"flex flex-col gap-6\">\n      {/* Action Buttons */}\n      <div className=\"bg-white rounded-xl shadow-md border border-slate-200 p-4 flex justify-between items-center no-print\">\n        <h2 className=\"text-lg font-bold text-slate-800 flex items-center gap-2\">\n          <i className=\"fas fa-file-alt text-amber-500\"></i> Pratinjau Dokumen\n        </h2>\n        <div className=\"flex gap-2\">\n          <button \n            onClick={onCopy}\n            className=\"p-2 px-4 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 text-sm font-semibold flex items-center gap-2 transition\"\n            title=\"Salin Teks\"\n          >\n            <i className=\"fas fa-copy\"></i> Salin\n          </button>\n          <button \n            onClick={() => window.print()}\n            className=\"p-2 px-4 bg-slate-900 hover:bg-slate-800 rounded-lg text-white text-sm font-semibold flex items-center gap-2 transition shadow-md\"\n          >\n            <i className=\"fas fa-print\"></i> Cetak Dokumen\n          </button>\n          <button \n            onClick={onReset}\n            className=\"p-2 px-4 bg-red-50 hover:bg-red-100 rounded-lg text-red-600 text-sm font-semibold flex items-center gap-2 transition\"\n          >\n            <i className=\"fas fa-trash-alt\"></i> Batal\n          </button>\n        </div>\n      </div>\n\n      {/* The \"Paper\" */}\n      <div className=\"bg-white shadow-2xl border border-slate-200 mx-auto w-full max-w-[210mm] min-h-[297mm] p-[20mm] md:p-[30mm] flex flex-col print:shadow-none print:border-none print:m-0 print:p-0\">\n        \n        {/* Simulated School Letterhead (Kop Surat) */}\n        <div className=\"border-b-4 border-double border-slate-900 pb-4 mb-8 flex items-center gap-6\">\n          <div className=\"w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center border-2 border-slate-200 flex-shrink-0\">\n            <i className=\"fas fa-school text-4xl text-slate-400\"></i>\n          </div>\n          <div className=\"text-center flex-grow pr-16\">\n            <h1 className=\"text-xl font-bold uppercase tracking-widest text-slate-900\">Propinsi Sulawesi Selatan/Kabupaten Luwu Utara</h1>\n            <h2 className=\"text-2xl font-bold uppercase text-slate-900\">Dinas Pendidikan Dan Kebudayaan</h2>\n            <h3 className=\"text-xl font-bold uppercase text-slate-900\">UPT SMPN 4 MAPPEDECENG</h3>\n            <p className=\"text-sm text-slate-600 italic\">Alamat Lengkap Sekolah - Kode Pos - Email - Nomor Telepon</p>\n          </div>\n        </div>\n\n        {/* Content Area */}\n        <div className=\"flex-grow whitespace-pre-wrap font-serif text-[12pt] text-slate-900 leading-[1.6] text-justify mb-10\">\n          {content}\n        </div>\n\n        {/* Sources / Grounding Section */}\n        {sources && sources.length > 0 && (\n          <div className=\"mt-10 pt-6 border-t-2 border-slate-200\">\n            <h4 className=\"text-[11pt] font-bold uppercase mb-3 text-slate-800\">Referensi Dan Sumber Informasi (Google Search):</h4>\n            <div className=\"space-y-2\">\n              {sources.map((source, index) => (\n                <div key={index} className=\"flex flex-col\">\n                  <span className=\"text-[10pt] font-semibold text-slate-700\">{index + 1}. {source.title}</span>\n                  <a href={source.uri} target=\"_blank\" rel=\"noopener noreferrer\" className=\"text-[9pt] text-blue-600 hover:underline italic truncate\">\n                    {source.uri}\n                  </a>\n                </div>\n              ))}\n            </div>\n          </div>\n        )}\n\n        {/* Footer info for preview only */}\n        <div className=\"mt-10 pt-8 border-t border-slate-100 text-center text-slate-400 text-[10pt] italic no-print\">\n          Dokumen ini diproses secara otomatis oleh Sistem Sekretaris Ahli dengan dukungan Google Search.\n        </div>\n      </div>\n    </div>\n  );\n};\n\nexport default MinutesPreview;\n"
+            }
+          ]
+        },
+        {
+          "path": "App.tsx",
+          "generationType": 1,
+          "isDone": true,
+          "description": "Update state management to support GeneratedMinutes object with text and sources.",
+          "diffs": [
+            {
+              "target": "",
+              "replacement": "\nimport React, { useState, useCallback } from 'react';\nimport Header from './components/Header';\nimport MeetingForm from './components/MeetingForm';\nimport MinutesPreview from './components/MinutesPreview';\nimport { MeetingData, GeneratedMinutes } from './types';\nimport { generateProfessionalMinutes } from './services/geminiService';\n\nconst App: React.FC = () => {\n  const [formData, setFormData] = useState<MeetingData>({\n    title: '',\n    date: '',\n    time: '',\n    location: '',\n    leadBy: '',\n    participants: '',\n    agenda: '',\n    discussionPoints: '',\n    decisions: '',\n    nextSteps: ''\n  });\n\n  const [isLoading, setIsLoading] = useState(false);\n  const [generatedResult, setGeneratedResult] = useState<GeneratedMinutes | null>(null);\n  const [error, setError] = useState<string | null>(null);\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    setIsLoading(true);\n    setError(null);\n\n    try {\n      const result = await generateProfessionalMinutes(formData);\n      setGeneratedResult(result);\n      // Scroll to result on small screens\n      if (window.innerWidth < 1024) {\n        setTimeout(() => {\n          const previewElement = document.getElementById('preview-section');\n          previewElement?.scrollIntoView({ behavior: 'smooth' });\n        }, 100);\n      }\n    } catch (err: any) {\n      setError(err.message || \"Terjadi kesalahan yang tidak terduga.\");\n    } finally {\n      setIsLoading(false);\n    }\n  };\n\n  const handleCopy = useCallback(() => {\n    if (generatedResult?.text) {\n      // Remove any markdown leftovers if any (though prompt forbids it)\n      const cleanText = generatedResult.text.replace(/[*_#]/g, '');\n      navigator.clipboard.writeText(cleanText);\n      alert(\"Notulen berhasil disalin! Anda bisa langsung menempelkannya (paste) di Microsoft Word atau Google Docs.\");\n    }\n  }, [generatedResult]);\n\n  const handleReset = useCallback(() => {\n    if (confirm(\"Apakah Anda yakin ingin menghapus draf ini dan kembali ke pengisian data?\")) {\n      setGeneratedResult(null);\n      window.scrollTo({ top: 0, behavior: 'smooth' });\n    }\n  }, []);\n\n  return (\n    <div className=\"min-h-screen pb-20 bg-[#f1f5f9]\">\n      <div className=\"no-print\">\n        <Header />\n      </div>\n      \n      <main className=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\">\n        {error && (\n          <div className=\"mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-center gap-3 no-print\">\n            <i className=\"fas fa-exclamation-triangle\"></i>\n            {error}\n          </div>\n        )}\n\n        <div className=\"grid grid-cols-1 lg:grid-cols-12 gap-10 items-start\">\n          {/* Form Column */}\n          <div className={`lg:col-span-5 transition-all duration-500 no-print ${generatedResult ? 'opacity-50 hover:opacity-100' : 'lg:col-span-12 max-w-3xl mx-auto w-full'}`}>\n            <MeetingForm \n              formData={formData} \n              setFormData={setFormData} \n              onSubmit={handleSubmit} \n              isLoading={isLoading} \n            />\n          </div>\n\n          {/* Result Column */}\n          <div id=\"preview-section\" className={`lg:col-span-7 transition-all duration-500 ${!generatedResult && !isLoading ? 'hidden' : 'block'}`}>\n            {isLoading ? (\n              <div className=\"bg-white rounded-xl shadow-lg p-12 flex flex-col items-center justify-center text-center space-y-6 min-h-[400px]\">\n                <div className=\"relative\">\n                  <div className=\"w-16 h-16 border-4 border-slate-100 border-t-amber-500 rounded-full animate-spin\"></div>\n                  <i className=\"fas fa-search absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-amber-500\"></i>\n                </div>\n                <div>\n                  <h3 className=\"text-xl font-bold text-slate-800\">Menyusun Notulen Profesional</h3>\n                  <p className=\"text-slate-500\">AI sedang mencari referensi terkini dan merangkai kata agar sesuai standar administrasi sekolah...</p>\n                </div>\n              </div>\n            ) : (\n              generatedResult && (\n                <MinutesPreview \n                  content={generatedResult.text} \n                  sources={generatedResult.sources}\n                  onCopy={handleCopy} \n                  onReset={handleReset} \n                />\n              )\n            )}\n          </div>\n        </div>\n\n        {!generatedResult && !isLoading && (\n          <div className=\"mt-12 max-w-4xl mx-auto text-center space-y-8 animate-fadeIn no-print\">\n            <div className=\"grid grid-cols-1 md:grid-cols-3 gap-6\">\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-200\">\n                <div className=\"w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-search-plus text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Google Grounding</h3>\n                <p className=\"text-slate-500 text-sm\">Notulen diperkaya dengan data referensi dari internet yang valid dan relevan.</p>\n              </div>\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-200\">\n                <div className=\"w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-link text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Sumber Transparan</h3>\n                <p className=\"text-slate-500 text-sm\">Setiap informasi tambahan dilengkapi dengan link sumber di bagian bawah dokumen.</p>\n              </div>\n              <div className=\"bg-white p-6 rounded-xl shadow-sm border border-slate-200\">\n                <div className=\"w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4\">\n                  <i className=\"fas fa-file-contract text-xl\"></i>\n                </div>\n                <h3 className=\"font-bold text-slate-800 mb-2\">Format Tanpa Bintang</h3>\n                <p className=\"text-slate-500 text-sm\">Hasil bersih, formal, dan siap cetak langsung tanpa format markdown.</p>\n              </div>\n            </div>\n          </div>\n        )}\n      </main>\n\n      <footer className=\"mt-20 text-center text-slate-400 text-sm no-print\">\n        <p>&copy; {new Date().getFullYear()} Sekretaris Ahli - Pendamping Administrasi Sekolah Modern</p>\n      </footer>\n\n      <style>{`\n        @media print {\n          .no-print { display: none !important; }\n          body { background-color: white !important; margin: 0 !important; padding: 0 !important; }\n          main { margin: 0 !important; padding: 0 !important; max-width: none !important; width: 100% !important; }\n          .lg\\\\:col-span-7 { width: 100% !important; margin: 0 !important; padding: 0 !important; display: block !important; }\n          #preview-section { display: block !important; width: 100% !important; }\n        }\n        @keyframes fadeIn {\n          from { opacity: 0; transform: translateY(20px); }\n          to { opacity: 1; transform: translateY(0); }\n        }\n        .animate-fadeIn {\n          animation: fadeIn 0.8s ease-out forwards;\n        }\n      `}</style>\n    </div>\n  );\n};\n\nexport default App;\n"
+            }
+          ]
+        }
+      ]
+    },
+    "createdTimestamp": {
+      "seconds": 1768885309,
+      "nanos": 693000000
+    },
+    "doneTimestamp": {
+      "seconds": 1768885311,
+      "nanos": 34000000
+    }
+  }
+]
