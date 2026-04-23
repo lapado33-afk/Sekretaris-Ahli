@@ -44,37 +44,54 @@ const MinutesPreview: React.FC<MinutesPreviewProps> = ({ content, sources, heade
       {/* The "Paper" */}
       <div className="bg-white shadow-2xl border border-slate-200 mx-auto w-full max-w-[210mm] min-h-[297mm] p-[10mm] sm:p-[20mm] md:p-[25mm] flex flex-col print:shadow-none print:border-none print:m-0 print:p-0">
         
-        {/* School Letterhead (Kop Surat) */}
-        <div className="border-b-4 border-double border-slate-900 pb-4 mb-8 flex items-center justify-between gap-4">
-          {/* Left Logo - Kabupaten */}
+        {/* School Letterhead (Kop Surat) - Standard Indonesia Style */}
+        <div className="border-b-[3px] border-slate-900 pb-2 mb-6 flex items-center justify-between gap-4">
+          {/* Left Logo - Kabupaten/Kota */}
           <div className="w-24 h-24 flex items-center justify-center flex-shrink-0">
             {header.logoKabupaten ? (
-              <img src={header.logoKabupaten} alt="Logo Kabupaten" className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" />
+              <img 
+                src={header.logoKabupaten} 
+                alt="Logo Kabupaten" 
+                className="w-20 h-20 object-contain" 
+              />
             ) : (
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center border-2 border-slate-200">
-                <i className="fas fa-landmark text-2xl text-slate-400"></i>
+              <div className="w-20 h-20 bg-slate-50 border border-dashed border-slate-300 rounded flex items-center justify-center no-print">
+                <i className="fas fa-landmark text-slate-300"></i>
               </div>
             )}
           </div>
 
-          <div className="text-center flex-grow">
-            <h1 className="text-base sm:text-lg font-bold uppercase tracking-tight text-slate-900 leading-tight">{header.government}</h1>
-            <h2 className="text-lg sm:text-xl font-bold uppercase text-slate-900 leading-tight">{header.department}</h2>
-            <h3 className="text-xl sm:text-2xl font-bold uppercase text-slate-900 leading-tight">{header.schoolName || 'NAMA SEKOLAH'}</h3>
-            <p className="text-[10pt] text-slate-700 font-medium mt-1 uppercase leading-snug">{header.address || 'Alamat Sekolah Belum Diisi'}</p>
+          <div className="text-center flex-grow flex flex-col justify-center py-2">
+            <h1 className="text-sm sm:text-base font-bold uppercase text-slate-900 leading-tight tracking-wide">
+              {header.government || 'PEMERINTAH KABUPATEN LUWU UTARA'}
+            </h1>
+            <h2 className="text-base sm:text-lg font-bold uppercase text-slate-900 leading-tight tracking-wide">
+              {header.department || 'DINAS PENDIDIKAN DAN KEBUDAYAAN'}
+            </h2>
+            <h3 className="text-xl sm:text-2xl font-black uppercase text-slate-900 leading-none my-1 tracking-wider">
+              {header.schoolName || 'NAMA SEKOLAH ANDA'}
+            </h3>
+            <p className="text-[9pt] sm:text-[10pt] text-slate-800 font-medium leading-tight">
+              {header.address || 'Alamat Lengkap Sekolah (Jl. Raya, No, Desa/Kel, Kec, Kode Pos)'}
+            </p>
           </div>
 
-          {/* Right Logo - Sekolah */}
+          {/* Right Logo - Sekolah/Tut Wuri Handayani */}
           <div className="w-24 h-24 flex items-center justify-center flex-shrink-0">
             {header.logoSekolah ? (
-              <img src={header.logoSekolah} alt="Logo Sekolah" className="max-w-full max-h-full object-contain" referrerPolicy="no-referrer" />
+              <img 
+                src={header.logoSekolah} 
+                alt="Logo Sekolah" 
+                className="w-20 h-20 object-contain" 
+              />
             ) : (
-              <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center border-2 border-slate-200">
-                <i className="fas fa-school text-2xl text-slate-400"></i>
+              <div className="w-20 h-20 bg-slate-50 border border-dashed border-slate-300 rounded flex items-center justify-center no-print">
+                <i className="fas fa-school text-slate-300"></i>
               </div>
             )}
           </div>
         </div>
+        <div className="h-0.5 bg-slate-900 w-full -mt-5 mb-8"></div> {/* Double line effect */}
 
         {/* Content Area */}
         <div className="flex-grow whitespace-pre-wrap font-serif text-[12pt] text-slate-900 leading-[1.6] text-justify mb-10">
